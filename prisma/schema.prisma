@@ -1,0 +1,245 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      UserRole @default(CONTRIBUTOR)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  assessments Assessment[]
+  businesses  Business[] @relation("UserBusinesses")
+}
+
+enum UserRole {
+  ADMIN
+  CONSULTANT
+  BUSINESS_OWNER
+  CONTRIBUTOR
+}
+
+model Business {
+  id          String   @id @default(cuid())
+  name        String
+  industry    String
+  location    String
+  employees   Int?
+  registrationNo String?
+  gstNumber   String?
+  panNumber   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  ownerId     String?
+  owner       User?    @relation("UserBusinesses", fields: [ownerId], references: [id])
+
+  assessments Assessment[]
+  schemes     SchemeEligibility[]
+  compliance  ComplianceTask[]
+  finances    FinancialRecord[]
+
+  @@index([ownerId])
+}
+
+model Assessment {
+  id          String   @id @default(cuid())
+  businessId  String
+  consultantId String?
+  status      AssessmentStatus @default(DRAFT)
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  business    Business @relation(fields: [businessId], references: [id])
+  consultant  User?    @relation(fields: [consultantId], references: [id])
+
+  processes   Process[]
+  aiAnalysis  AIAnalysis?
+  recommendations Recommendation[]
+
+  @@index([businessId])
+  @@index([consultantId])
+}
+
+enum AssessmentStatus {
+  DRAFT
+  IN_PROGRESS
+  AI_ANALYSIS_COMPLETE
+  RECOMMENDATIONS_READY
+  COMPLETED
+}
+
+model Process {
+  id          String   @id @default(cuid())
+  assessmentId String
+  name        String
+  description String?
+  stepNumber  Int
+  photos      String[]
+  voiceNotes  String[]
+  duration    Int? // in minutes
+  costPerUnit Float?
+  createdAt   DateTime @default(now())
+
+  assessment  Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  @@index([assessmentId])
+}
+
+model AIAnalysis {
+  id            String   @id @default(cuid())
+  assessmentId  String   @unique
+  processCount  Int
+  automationScore Float
+  roiEstimate   Float?
+  riskFactors   String[]
+  opportunities Json
+  generatedAt   DateTime @default(now())
+
+  assessment Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+}
+
+model Recommendation {
+  id            String   @id @default(cuid())
+  assessmentId  String
+  title         String
+  description   String
+  category      RecommendationCategory
+  priority      Priority @default(MEDIUM)
+  costEstimate  Float?
+  timelineMonths Int?
+  roiPercentage Float?
+  status        RecommendationStatus @default(PENDING)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  assessment Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  @@index([assessmentId])
+}
+
+enum RecommendationCategory {
+  AUTOMATION
+  PROCESS_OPTIMIZATION
+  TECHNOLOGY_UPGRADE
+  WORKFORCE_TRAINING
+  ENERGY_EFFICIENCY
+  QUALITY_CONTROL
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum RecommendationStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  DEFERRED
+}
+
+model Scheme {
+  id          String   @id @default(cuid())
+  name        String
+  code        String   @unique
+  ministry    String
+  description String
+  maxAmount   Float?
+  eligibility Json
+  benefits    String[]
+  documents   String[]
+  applicationUrl String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  eligibilities SchemeEligibility[]
+}
+
+model SchemeEligibility {
+  id        String   @id @default(cuid())
+  businessId String
+  schemeId  String
+  isEligible Boolean
+  matchScore Float // 0-100
+  reasons   String[]
+  checkedAt DateTime @default(now())
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  scheme   Scheme   @relation(fields: [schemeId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, schemeId])
+  @@index([businessId])
+  @@index([schemeId])
+}
+
+model ComplianceTask {
+  id          String   @id @default(cuid())
+  businessId  String
+  type        ComplianceType
+  title       String
+  description String?
+  dueDate     DateTime
+  status      TaskStatus @default(PENDING)
+  documents   String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([dueDate])
+}
+
+enum ComplianceType {
+  GST_FILING
+  LABOR_LAW
+  ENVIRONMENT
+  SAFETY
+  TAX_RETURN
+  MSME_REGISTRATION_RENEWAL
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  OVERDUE
+}
+
+model FinancialRecord {
+  id          String   @id @default(cuid())
+  businessId  String
+  type        FinancialType
+  amount      Float
+  description String?
+  date        DateTime
+  category    String?
+  createdAt   DateTime @default(now())
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([date])
+}
+
+enum FinancialType {
+  INCOME
+  EXPENSE
+  INVESTMENT
+  LOAN
+}
