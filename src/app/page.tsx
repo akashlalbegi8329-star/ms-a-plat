@@ -14,10 +14,10 @@ export default function Home() {
             <span className="text-xl font-semibold">MSME AI</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/field" className="text-sm text-[var(--color-body)] hover:text-[var(--color-ink)]">
-              Field Tool
+            <Link href="/auth/signin" className="text-sm text-[var(--color-body)] hover:text-[var(--color-ink)]">
+              Sign In
             </Link>
-            <Link href="/dashboard" className="px-4 py-2 text-sm font-medium bg-[var(--color-primary)] text-white rounded-full hover:bg-[#000]">
+            <Link href="/auth/signup" className="px-4 py-2 text-sm font-medium bg-[var(--color-primary)] text-white rounded-full hover:bg-[#000]">
               Get Started
             </Link>
           </div>
@@ -41,17 +41,17 @@ export default function Home() {
 
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
-                href="/field/new-assessment"
+                href="/auth/signup"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[var(--color-primary)] text-white rounded-full font-medium hover:bg-[#000] transition-colors"
               >
-                Start Field Assessment
+                Start Free Trial
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                href="/dashboard"
+                href="/auth/signin"
                 className="inline-flex items-center justify-center px-6 py-3 bg-white border border-[var(--color-hairline)] rounded-full font-medium hover:bg-[var(--color-canvas-soft-2)] transition-colors"
               >
-                View Dashboard
+                Sign In
               </Link>
             </div>
           </div>
@@ -99,13 +99,13 @@ export default function Home() {
         <div className="max-w-[1400px] mx-auto px-6 py-20 text-center">
           <h2 className="text-display-lg mb-4">Ready to transform MSMEs with AI?</h2>
           <p className="text-lg mb-8 text-zinc-300 max-w-2xl mx-auto">
-            Join the movement to digitize India's small businesses. Start assessing factories in your area today.
+            Join the movement to digitize India's small businesses. Create an account to start assessing factories.
           </p>
           <Link
-            href="/field/new-assessment"
+            href="/auth/signup"
             className="inline-flex items-center gap-2 px-8 py-4 bg-white text-black rounded-full font-medium hover:bg-zinc-100 transition-colors"
           >
-            Start Your First Assessment
+            Create Free Account
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>

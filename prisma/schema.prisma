@@ -12,9 +12,12 @@ datasource db {
 
 model User {
   id        String   @id @default(cuid())
+  authId    String?  @unique
   email     String   @unique
   name      String?
   role      UserRole @default(CONTRIBUTOR)
+  emailVerified DateTime?
+  isActive  Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

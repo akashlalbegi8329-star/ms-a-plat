@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { Factory, Shield, CreditCard, TrendingUp, FileText, Bell } from "lucide-react";
+import { UserMenu } from "@/components/auth/UserMenu";
+import { AuthGuard } from "@/components/auth/AuthGuard";
 
-export default function Dashboard() {
+function DashboardContent() {
   return (
     <div className="min-h-screen bg-[var(--color-canvas-soft)]">
       <nav className="bg-white border-b border-[var(--color-hairline)]">
@@ -16,7 +18,7 @@ export default function Dashboard() {
           </div>
           <div className="flex items-center gap-4">
             <Bell className="h-5 w-5 text-[var(--color-body)]" />
-            <div className="w-8 h-8 bg-[var(--color-primary)] rounded-full" />
+            <UserMenu />
           </div>
         </div>
       </nav>
@@ -124,5 +126,13 @@ export default function Dashboard() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <AuthGuard>
+      <DashboardContent />
+    </AuthGuard>
   );
 }
